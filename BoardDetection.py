@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-
 def findBoard(contours, img, coloured):
     #What this function does is that it takes the contours of the images taken by camera, and the image un gray scale and the coloured image, it returns the board
     #colored image.
