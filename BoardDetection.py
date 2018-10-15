@@ -1,7 +1,47 @@
 import cv2
 import numpy as np
+
+
+
+################# MAPPING Squares Coordinates in a Matrix ####################
+
+def mapping(tomap):
+
+    sorted_matrix=[[[0,0]]*8 for i in range(8)]
+
+    for i in range(8):
+
+        tomap.sort(key=lambda tup: tup[0])
+
+        a = tomap[i*8:(i+1)*8]
+
+        a.sort(key=lambda tup: tup[1])
+
+        for j in range(8):
+            if a[j]!=[0, 0]:
+                sorted_matrix[j][i] = a[j]
+
+    return sorted_matrix
+
+
+
+################# Final Output Matrix as Zeros and Ones  ####################
+def Pieces_to_Matrix(circles,sorted_matrix):
+    output=np.zeros(shape=(8,8))
+    for c in circles:
+        for x in range(8):
+            kx=c-sorted_matrix[0][x]
+            if abs(kx[0])<5:
+                for y in range(8):
+                    ky=c-sorted_matrix[y][x]
+                    if abs(ky[1])<5:
+                        output[y][x]=1
+    return output
+
+
+
 def findBoard(contours, img, coloured):
-    #What this function does is that it takes the contours of the images taken by camera, and the image un gray scale and the coloured image, it returns the board
+    #What this function does is that it takes the contours of the images taken by camera, and the image in gray scale and the coloured image, it returns the board
     #colored image.
     #get the dimensions of the grayscale image
     h, w = img.shape
@@ -88,20 +128,110 @@ def setPoints(approx):
     rect[1] = approx[np.argmax(diff)]
     rect[3] = approx[np.argmin(diff)]
     return rect
-def getBoard(frameColoured):
+def getBoard(frameColoured, threshold = 0):
     #convert to gray image
     frame = cv2.cvtColor(frameColoured, cv2.COLOR_BGR2GRAY)
     #apply adaptive threshold
-    thresholded = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 15, 0)
+    thresholded = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 15, threshold)
     #find countours of the image
     _, contours, _ = cv2.findContours(thresholded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     #get the board and the corner points
     [board, pts] = findBoard(contours, frame, frameColoured)
     return [board, pts]
+def getPieces(frame, thresholdPieces):
+    nbrofsquares = 0
+    nbrofcircles = 0
+    w, h = frame.shape
+    s = w * h
+    # Kernel used to apply the morphological filter
+    kernel = np.ones((5, 5), np.uint8)
+    # Thresholding (We got the value f the threshold from the trackbar)
+    _, thresholded = cv2.threshold(frame, thresholdPieces, 255, cv2.THRESH_BINARY)  # Applying threshold
+    # Laplacian operator for edge detection
+    lap = cv2.Laplacian(thresholded, cv2.CV_64F)  # Applying Laplacian transform
+    # Applying gradient morephological filter
+    lap = cv2.morphologyEx(lap, cv2.MORPH_GRADIENT, kernel)
+    #
+    cv2.imshow("lap", lap)
+    #################################### Preprocessing ended ###########################################################
+    piecesMatrix = []
+    #################################### Contours manipulation ########################################################
+    # Calculating the contour from the edge detected matrix (Output of the Laplacian operator)
+    _, contours, _ = cv2.findContours(lap.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # Getting min required area of the square to be accepted !
+    # Looping through the contours detected previously
+
+
+    map_matrix= [[0, 0] for i in range(64)] # map matrix stores the coordinates of every single square within the board
+    i, k = 0, 0
+    # ends here
+    for c in contours:
+        # Compute the area of the contour
+        area = cv2.contourArea(c)
+        if area > (s/220) and area < (s / 10):  # Accept only large enough squares in this range
+            peri = cv2.arcLength(c, True)  # Calculate the perimeter of the contour
+            # (0.15 was deduced experimentaly) Using Ramer-Douglas-Peucker algorithm for shape detection
+            approx = cv2.approxPolyDP(c, 0.15 * peri, True)
+            if len(approx) == 4:  # The shape has vertices => either square or rectangle, both are fine
+                # Square detected
+                nbrofsquares += 1  # Increment the nbr of squres seen
+                M = cv2.moments(c)  # Getting the moments of the contour
+                cX = int(M["m10"] / M["m00"])  # Getting the x coordinate of the center of the square
+                cY = int(M["m01"] / M["m00"])  # Getting the y coordinate of the center of the square
+                cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)  # Drawing the contour
+                #Added
+                map_matrix[i][k] = cX          # the x coordinates for the c contour stored in map
+                map_matrix[i][k + 1] = cY      # the y coordinates for the c contour stored in map
+                i += 1
+
+            else:
+                # if not square, pass !
+                pass
+
+    mapped=mapping(map_matrix)   ### using the mapping function we rearrange the stored values in map matrix ###
+            ##### Displaying the mapped matrix ##########
+    for i in range(8):
+        print(mapped[i])
+        print("\n")
+    #################################### Contours manipulation ended ! ########################################################
+
+    if nbrofsquares > 63 and nbrofsquares < 67:
+        # pass message that the board is fully detected
+        #detect the pieces in the board using circle detection
+        piecesMatrix, frame= getCircles(frame)
+        Out_matrix=Pieces_to_Matrix(piecesMatrix,mapped)
+        print(Out_matrix)
+
+    elif nbrofsquares < 64 and nbrofsquares > 10:
+        #pass message that chess board is partially detected message
+        pass
+    else:
+        #pass message that the board cannot be seen in the picture
+        pass
+    return [nbrofsquares, piecesMatrix,frame]
+def getCircles(frame):
+    nbrofcircles = 0
+    # Getting circles from gray image using hough circle
+    circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, 24, param1=50, param2=28, minRadius=10,
+                               maxRadius=20)
+    piecesMatrix = []
+    # Casting the content of circles
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype('int')
+
+        # If board detected, let's detect the pieces !
+        for (Cx, Cy, r) in circles:
+            nbrofcircles += 1
+            cv2.circle(frame, (Cx, Cy), r, (255, 255, 255), 3)
+            cv2.rectangle(frame, (Cx - 5, Cy - 5), (Cx + 5, Cy + 5), (0, 128, 255), -1)
+            piecesMatrix.append([Cx, Cy])
+
+    return [piecesMatrix, frame]
+
 def nothing(x):
     pass
 def main():
-    capture = cv2.VideoCapture(r"C:\Users\moham\Desktop\chess.mp4")  # Opening the webcam
+    capture = cv2.VideoCapture(r"chess.mp4")  # Opening the webcam
     cv2.namedWindow('frame')  # Giving a name to the window I'll open, needed for the Trackbars
     cv2.createTrackbar('threshold', 'frame', 0, 255,
                        nothing)  # Trackbar to manage threshold values (Threshold filtering)
@@ -112,90 +242,23 @@ def main():
     nbrofsquares = 0  # Will be needed to detect the board type and thus the game !
     nbrofcircles = 0
     pts = 0
+    thresholdBoard = 0
+    thresholdPieces = 227
     while True:
         # Initializing the nbr of detected squares
         _, frame = capture.read()
         cv2.imshow("original", frame)
         try:
             if nbrofsquares == 64:
-                print("I didn't compute all the board staff")
                 ret = transformToBoard(frame, pts)
                 frame = cv2.cvtColor(ret, cv2.COLOR_BGR2GRAY)
             else:
-                ret = getBoard(frame)
+                ret = getBoard(frame, thresholdBoard)
                 frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
-                print("inside getboard block")
                 pts = ret[1]
-            nbrofsquares = 0
-            nbrofcircles = 0
-            w, h = frame.shape
-            s = w*h
-            # Kernel used to apply the morphological filter
-            kernel = np.ones((5, 5), np.uint8)
-            # Thresholding (We got the value f the threshold from the trackbar)
-            threshold = cv2.getTrackbarPos('threshold', 'frame')
-            _, thresholded = cv2.threshold(frame, threshold, 255, cv2.THRESH_BINARY)  # Applying threshold
-            # Laplacian operator for edge detection
-            lap = cv2.Laplacian(thresholded, cv2.CV_64F)  # Applying Laplacian transform
-            # Applying gradient morephological filter
-            lap = cv2.morphologyEx(lap, cv2.MORPH_GRADIENT, kernel)
-            #
-            cv2.imshow("lap", lap)
-            #################################### Preprocessing ended ###########################################################
-
-            #################################### Contours manipulation ########################################################
-            # Calculating the contour from the edge detected matrix (Output of the Laplacian operator)
-            _, contours, _ = cv2.findContours(lap.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-            # Getting min required area of the square to be accepted !
-            maxArea = cv2.getTrackbarPos('Area', 'frame')
-            # Looping through the contours detected previously
-            for c in contours:
-                # Compute the area of the contour
-                area = cv2.contourArea(c)
-                if area > maxArea and area < (s/10):  # Accept only large enough squares
-                    peri = cv2.arcLength(c, True)  # Calculate the perimeter of the contour
-                    # (0.15 was deduced experimentaly) Using Ramer-Douglas-Peucker algorithm for shape detection
-                    approx = cv2.approxPolyDP(c, 0.15 * peri, True)
-                    if len(approx) == 4:  # The shape has vertices => either square or rectangle, both are fine
-                        # Square detected
-                        nbrofsquares += 1  # Increment the nbr of squres seen
-                        M = cv2.moments(c)  # Getting the moments of the contour
-                        cX = int(M["m10"] / M["m00"])  # Getting the x coordinate of the center of the square
-                        cY = int(M["m01"] / M["m00"])  # Getting the y coordinate of the center of the square
-                        cv2.drawContours(frame, [c], -1, (0, 255, 0), 2)  # Drawing the contour
-                    else:
-                        # if not square, pass !
-                        pass
-            #################################### Contours manipulation ended ! ########################################################
-
-            print('I detected %d square !' % (nbrofsquares))  # Printing out the nbr of squares detected !
-
-            if nbrofsquares > 63 and nbrofsquares < 67:
-                cv2.putText(frame, "Chess board detected !", (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255),
-                            1)
-                # Getting circles from gray image using hough circle
-                circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, 24, param1=50, param2=28, minRadius=10,
-                                           maxRadius=20)
-                # Casting the content of circles
-                if circles is not None:
-                    circles = np.round(circles[0, :]).astype('int')
-
-                    # If board detected, let's detect the pieces !
-                    for (Cx, Cy, r) in circles:
-                        nbrofcircles += 1
-                        cv2.circle(frame, (Cx, Cy), r, (255, 255, 255), 3)
-                        cv2.rectangle(frame, (Cx - 5, Cy - 5), (Cx + 5, Cy + 5), (0, 128, 255), -1)
-            elif nbrofsquares < 64 and nbrofsquares > 10:
-                cv2.putText(frame, "Chess board partially detected !", (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
-                            (255, 255, 255), 1)
-            else:
-                cv2.putText(frame, "I Can't see the board !", (5, 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 255),
-                            1)
-            print('I detected %d piece !' % nbrofcircles)
-
-            cv2.imshow("frame", frame)  # Showing the frame !
-
-            # If 'q' key was pressed, the loop will break, consequently, the program will exit !
+            nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces)
+            print("number of squares: " + str(nbrofsquares) + "     number of circles: " + str(len(nbrofcircles)))
+            cv2.imshow("frame", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         except (TypeError, ZeroDivisionError, AttributeError):
