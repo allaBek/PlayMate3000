@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import time
 
 def findBoard(contours, img, coloured):
     #What this function does is that it takes the contours of the images taken by camera, and the image in gray scale and the coloured image, it returns the board
@@ -99,7 +100,7 @@ def getBoard(frameColoured, threshold = 0):
     #get the board and the corner points
     [board, pts] = findBoard(contours, frame, frameColoured)
     return [board, pts]
-def getPieces(frame, thresholdPieces):
+def getPieces(frame, thresholdPieces, thresholdCircles):
     nbrofsquares = 0
     nbrofcircles = 0
     w, h = frame.shape
@@ -140,10 +141,10 @@ def getPieces(frame, thresholdPieces):
                 pass
     #################################### Contours manipulation ended ! ########################################################
 
-    if nbrofsquares > 63 and nbrofsquares < 67:
+    if nbrofsquares > 55 and nbrofsquares < 67:
         # pass message that the board is fully detected
         #detect the pieces in the board using circle detection
-        piecesMatrix, frame= getCircles(frame)
+        piecesMatrix, frame= getCircles(frame, thresholdCircles)
     elif nbrofsquares < 64 and nbrofsquares > 10:
         #pass message that chess board is partially detected message
         pass
@@ -151,10 +152,10 @@ def getPieces(frame, thresholdPieces):
         #pass message that the board cannot be seen in the picture
         pass
     return [nbrofsquares, piecesMatrix,frame]
-def getCircles(frame):
+def getCircles(frame, threshold):
     nbrofcircles = 0
     # Getting circles from gray image using hough circle
-    circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, 24, param1=50, param2=28, minRadius=10,
+    circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, 24, param1=50, param2=threshold, minRadius=13,
                                maxRadius=20)
     piecesMatrix = []
     # Casting the content of circles
@@ -171,13 +172,17 @@ def getCircles(frame):
 def nothing(x):
     pass
 def main():
-    capture = cv2.VideoCapture(r"C:\Users\moham\Desktop\chess.mp4")  # Opening the webcam
+    capture = cv2.VideoCapture(r"C:\Users\moham\Desktop\v5.mp4")  # Opening the webcam
+    time.sleep(0.1)
     cv2.namedWindow('frame')  # Giving a name to the window I'll open, needed for the Trackbars
     cv2.createTrackbar('threshold', 'frame', 0, 255,
                        nothing)  # Trackbar to manage threshold values (Threshold filtering)
-    cv2.setTrackbarPos('threshold', 'frame', 228)  # Setting Initial threshold value
+    cv2.setTrackbarPos('threshold', 'frame', 127)  # Setting Initial threshold value
     cv2.createTrackbar('Area', 'frame', 0, 3000,
                        nothing)  # Trackbar to set threshold area of the accepted squares (used with shape recognition)
+    cv2.createTrackbar('circleTh', 'frame', 0, 255,
+                       nothing)
+    cv2.setTrackbarPos('circleTh', 'frame', 25)
     cv2.setTrackbarPos('Area', 'frame', 300)  # Setting the initial accepted square area to 300 px
     nbrofsquares = 0  # Will be needed to detect the board type and thus the game !
     nbrofcircles = 0
@@ -185,6 +190,8 @@ def main():
     thresholdBoard = 0
     thresholdPieces = 227
     while True:
+        thresholdPieces = cv2.getTrackbarPos("threshold", "frame")
+        thresholdCircles = cv2.getTrackbarPos("circleTh", "frame")
         # Initializing the nbr of detected squares
         _, frame = capture.read()
         cv2.imshow("original", frame)
@@ -196,7 +203,7 @@ def main():
                 ret = getBoard(frame, thresholdBoard)
                 frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
                 pts = ret[1]
-            nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces)
+            nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces, thresholdCircles)
             print("number of squares: " + str(nbrofsquares) + "     number of circles: " + str(len(nbrofcircles)))
             cv2.imshow("frame", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
