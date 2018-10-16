@@ -200,6 +200,7 @@ def getPieces(frame, thresholdPieces):
     return [nbrofsquares, piecesMatrix,frame]
 
 def filterPositionsMatrix(map):
+    #remove any zeros from the matrix
     map = list(filter(lambda b: b != [0, 0], map))
     for i in range(len(map)):
         map[i].append(map[i][0] + map[i][1])
