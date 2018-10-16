@@ -1,45 +1,34 @@
 import cv2
 import numpy as np
-
+import os
 
 
 ################# MAPPING Squares Coordinates in a Matrix ####################
 
 def mapping(tomap):
-
     sorted_matrix=[[[0,0]]*8 for i in range(8)]
-
     for i in range(8):
-
         tomap.sort(key=lambda tup: tup[0])
-
         a = tomap[i*8:(i+1)*8]
-
         a.sort(key=lambda tup: tup[1])
-
         for j in range(8):
-            if a[j]!=[0, 0]:
                 sorted_matrix[j][i] = a[j]
-
     return sorted_matrix
 
 
 
 ################# Final Output Matrix as Zeros and Ones  ####################
-def Pieces_to_Matrix(circles,sorted_matrix):
-    output=np.zeros(shape=(8,8))
-    for c in circles:
-        for x in range(8):
-            kx=c-sorted_matrix[0][x]
-            if abs(kx[0])<5:
-                for y in range(8):
-                    ky=c-sorted_matrix[y][x]
-                    if abs(ky[1])<5:
-                        output[y][x]=1
+def Pieces_to_Matrix(circles, sortedMatrix):
+    m = 0
+    output = np.zeros((8,8))
+    for x in range(len(sortedMatrix)):
+        for y in range(len(sortedMatrix[0])):
+            for c in circles:
+                if abs(c[0] - sortedMatrix[x][y][0]) < 3 and abs(c[1] - sortedMatrix[x][y][1]) < 3:
+                    sortedMatrix[x][y]
+                    output[x][y] = 1
+
     return output
-
-
-
 def findBoard(contours, img, coloured):
     #What this function does is that it takes the contours of the images taken by camera, and the image in gray scale and the coloured image, it returns the board
     #colored image.
@@ -165,6 +154,7 @@ def getPieces(frame, thresholdPieces):
     map_matrix= [[0, 0] for i in range(64)] # map matrix stores the coordinates of every single square within the board
     i, k = 0, 0
     # ends here
+    circlesFrame = frame.copy()
     for c in contours:
         # Compute the area of the contour
         area = cv2.contourArea(c)
@@ -187,21 +177,20 @@ def getPieces(frame, thresholdPieces):
             else:
                 # if not square, pass !
                 pass
-
-    mapped=mapping(map_matrix)   ### using the mapping function we rearrange the stored values in map matrix ###
-            ##### Displaying the mapped matrix ##########
-    for i in range(8):
-        print(mapped[i])
-        print("\n")
     #################################### Contours manipulation ended ! ########################################################
-
-    if nbrofsquares > 63 and nbrofsquares < 67:
+    cv2.imshow("squares", frame)
+    #find circles in the board
+    piecesMatrix, frame = getCircles(circlesFrame)
+    cv2.imshow("circles", frame)
+    map_matrix = map_matrix + piecesMatrix
+    map_matrix = filterPositionsMatrix(map_matrix)
+    #if we have 64 squares detected, display the results
+    if len(map_matrix) == 64:
         # pass message that the board is fully detected
         #detect the pieces in the board using circle detection
-        piecesMatrix, frame= getCircles(frame)
-        Out_matrix=Pieces_to_Matrix(piecesMatrix,mapped)
+        mapped = mapping(map_matrix)  ### using the mapping function we rearrange the stored values in map matrix ###
+        Out_matrix = Pieces_to_Matrix(piecesMatrix, mapped)
         print(Out_matrix)
-
     elif nbrofsquares < 64 and nbrofsquares > 10:
         #pass message that chess board is partially detected message
         pass
@@ -209,6 +198,22 @@ def getPieces(frame, thresholdPieces):
         #pass message that the board cannot be seen in the picture
         pass
     return [nbrofsquares, piecesMatrix,frame]
+
+def filterPositionsMatrix(map):
+    map = list(filter(lambda b: b != [0, 0], map))
+    for i in range(len(map)):
+        map[i].append(map[i][0] + map[i][1])
+    map.sort(key=lambda x: x[2])
+    repeatedCenters = []
+    for i in range(0, len(map)):
+        for j in range(i +1, len(map)):
+            if abs(map[i][2]  - map[j][2]) < 40 and abs(map[i][1]  - map[j][1]) < 25 and abs(map[i][0]  - map[j][0]) < 25:
+                repeatedCenters.append(j)
+    for i in range(len(map)):
+        del map[i][2]
+    for i in repeatedCenters:
+        del map[i]
+    return map
 def getCircles(frame):
     nbrofcircles = 0
     # Getting circles from gray image using hough circle
@@ -225,26 +230,23 @@ def getCircles(frame):
             cv2.circle(frame, (Cx, Cy), r, (255, 255, 255), 3)
             cv2.rectangle(frame, (Cx - 5, Cy - 5), (Cx + 5, Cy + 5), (0, 128, 255), -1)
             piecesMatrix.append([Cx, Cy])
-
     return [piecesMatrix, frame]
 
 def nothing(x):
     pass
 def main():
-    capture = cv2.VideoCapture(r"chess.mp4")  # Opening the webcam
+    capture = cv2.VideoCapture(r"H:\v2.mp4")  # Opening the webcam
     cv2.namedWindow('frame')  # Giving a name to the window I'll open, needed for the Trackbars
     cv2.createTrackbar('threshold', 'frame', 0, 255,
                        nothing)  # Trackbar to manage threshold values (Threshold filtering)
-    cv2.setTrackbarPos('threshold', 'frame', 228)  # Setting Initial threshold value
-    cv2.createTrackbar('Area', 'frame', 0, 3000,
-                       nothing)  # Trackbar to set threshold area of the accepted squares (used with shape recognition)
-    cv2.setTrackbarPos('Area', 'frame', 300)  # Setting the initial accepted square area to 300 px
+    cv2.setTrackbarPos('threshold', 'frame', 120)  # Setting Initial threshold value
     nbrofsquares = 0  # Will be needed to detect the board type and thus the game !
     nbrofcircles = 0
     pts = 0
     thresholdBoard = 0
-    thresholdPieces = 227
+
     while True:
+        thresholdPieces = cv2.getTrackbarPos("threshold", 'frame')
         # Initializing the nbr of detected squares
         _, frame = capture.read()
         cv2.imshow("original", frame)
@@ -257,12 +259,12 @@ def main():
                 frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
                 pts = ret[1]
             nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces)
-            print("number of squares: " + str(nbrofsquares) + "     number of circles: " + str(len(nbrofcircles)))
+            print("number of circles: " + str(len(nbrofcircles)))
             cv2.imshow("frame", img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        except (TypeError, ZeroDivisionError, AttributeError):
-            pass
+        except (AttributeError):
+            print("I am in an error")
     capture.release()
     cv2.destroyAllWindows()
 if __name__ == '__main__':
