@@ -6,6 +6,7 @@ import os
 ################# MAPPING Squares Coordinates in a Matrix ####################
 
 def mapping(tomap):
+    #I did not make this one and I really do not understand how it works, it was made by Raouf
     sorted_matrix=[[[0,0]]*8 for i in range(8)]
     for i in range(8):
         tomap.sort(key=lambda tup: tup[0])
@@ -19,7 +20,8 @@ def mapping(tomap):
 
 ################# Final Output Matrix as Zeros and Ones  ####################
 def Pieces_to_Matrix(circles, sortedMatrix):
-    m = 0
+    # this fucntion is used to map between the centers matrix and circles centers, drawing 1 in a place of a center and  otherwise
+    #create an empty list that will have the final values of the map
     output = np.zeros((8,8))
     for x in range(len(sortedMatrix)):
         for y in range(len(sortedMatrix[0])):
@@ -27,7 +29,6 @@ def Pieces_to_Matrix(circles, sortedMatrix):
                 if abs(c[0] - sortedMatrix[x][y][0]) < 3 and abs(c[1] - sortedMatrix[x][y][1]) < 3:
                     sortedMatrix[x][y]
                     output[x][y] = 1
-
     return output
 def findBoard(contours, img, coloured):
     #What this function does is that it takes the contours of the images taken by camera, and the image in gray scale and the coloured image, it returns the board
@@ -64,7 +65,7 @@ def findBoard(contours, img, coloured):
                 pass
     #check if the array was filled and it is not a null
     if len(boardPts) > 1:
-        #set the points of teh border
+        #set the points of the border
         pts = setPoints(boardPts)
         #transform the board corners into the cropped image of the board
         board = transformToBoard(coloured, pts)
@@ -128,6 +129,7 @@ def getBoard(frameColoured, threshold = 0):
     [board, pts] = findBoard(contours, frame, frameColoured)
     return [board, pts]
 def getPieces(frame, thresholdPieces):
+    #This function takes the image of the board and finds the squares and circles on it
     nbrofsquares = 0
     nbrofcircles = 0
     w, h = frame.shape
@@ -182,7 +184,9 @@ def getPieces(frame, thresholdPieces):
     #find circles in the board
     piecesMatrix, frame = getCircles(circlesFrame)
     cv2.imshow("circles", frame)
+    #add the pieces matrix to the map matrix, so that we have all the centers of both squares and circles
     map_matrix = map_matrix + piecesMatrix
+    #filter the position by removing duplicate centers, if a crcles is on a square and both centers are on map matrix, delete one
     map_matrix = filterPositionsMatrix(map_matrix)
     #if we have 64 squares detected, display the results
     if len(map_matrix) == 64:
@@ -200,8 +204,10 @@ def getPieces(frame, thresholdPieces):
     return [nbrofsquares, piecesMatrix,frame]
 
 def filterPositionsMatrix(map):
+    #this function is used to filter the centers matri, since this matrix has both squares and circles centers, it takes approximation and remove any duplicates
     #remove any zeros from the matrix
     map = list(filter(lambda b: b != [0, 0], map))
+    # we create another axis that has the sum of x and y coordinates
     for i in range(len(map)):
         map[i].append(map[i][0] + map[i][1])
     map.sort(key=lambda x: x[2])
@@ -210,12 +216,15 @@ def filterPositionsMatrix(map):
         for j in range(i +1, len(map)):
             if abs(map[i][2]  - map[j][2]) < 40 and abs(map[i][1]  - map[j][1]) < 25 and abs(map[i][0]  - map[j][0]) < 25:
                 repeatedCenters.append(j)
+    #delete the added axis
     for i in range(len(map)):
         del map[i][2]
+    #delete the repeated centers
     for i in repeatedCenters:
         del map[i]
     return map
 def getCircles(frame):
+    #This function is used to detect circles on the image, which are the piecesa and return their centers
     nbrofcircles = 0
     # Getting circles from gray image using hough circle
     circles = cv2.HoughCircles(frame, cv2.HOUGH_GRADIENT, 1, 24, param1=50, param2=28, minRadius=10,
@@ -228,8 +237,11 @@ def getCircles(frame):
         # If board detected, let's detect the pieces !
         for (Cx, Cy, r) in circles:
             nbrofcircles += 1
+            #draw circles on the frame
             cv2.circle(frame, (Cx, Cy), r, (255, 255, 255), 3)
+            #I have no idea what this line is doing here, answer me when you see it
             cv2.rectangle(frame, (Cx - 5, Cy - 5), (Cx + 5, Cy + 5), (0, 128, 255), -1)
+            #add the centers to the pieces matrix so that they can be processed later
             piecesMatrix.append([Cx, Cy])
     return [piecesMatrix, frame]
 
@@ -241,23 +253,34 @@ def main():
     cv2.createTrackbar('threshold', 'frame', 0, 255,
                        nothing)  # Trackbar to manage threshold values (Threshold filtering)
     cv2.setTrackbarPos('threshold', 'frame', 120)  # Setting Initial threshold value
-    nbrofsquares = 0  # Will be needed to detect the board type and thus the game !
+    #this will have the number of squares on the image
+    nbrofsquares = 0
+    #this wll have the number of circles on the image
     nbrofcircles = 0
+    # this will have the corner points
     pts = 0
+    #This values is used for the adaptive threshold that gets the board
     thresholdBoard = 0
-
     while True:
+        #get the pieces threshold value
         thresholdPieces = cv2.getTrackbarPos("threshold", 'frame')
-        # Initializing the nbr of detected squares
+        #read frame from camera
         _, frame = capture.read()
+        #print the frame
         cv2.imshow("original", frame)
+        #try catch block to avoid errors
         try:
             if nbrofsquares == 64:
+                #get the board image from saved coordinates to speed up the process
                 ret = transformToBoard(frame, pts)
+                #convert the image to gray scale
                 frame = cv2.cvtColor(ret, cv2.COLOR_BGR2GRAY)
             else:
+                #find the board image
                 ret = getBoard(frame, thresholdBoard)
+                #convert to gray scale
                 frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
+                #save the points of the corener for later use
                 pts = ret[1]
             nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces)
             print("number of circles: " + str(len(nbrofcircles)))
