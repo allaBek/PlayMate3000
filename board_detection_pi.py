@@ -6,6 +6,7 @@ from picamera.array import PiRGBArray
 import time
 
 
+
 ################# MAPPING Squares Coordinates in a Matrix ####################
 
 def mapping(tomap):
@@ -72,6 +73,8 @@ def findBoard(contours, img, coloured):
         pts = setPoints(boardPts)
         #transform the board corners into the cropped image of the board
         board = transformToBoard(coloured, pts)
+    else:
+        return [-1, -1]
     #return the board image and the corner points, these will be used later to avoid redoing computations if the board was fully detected
     return [board, pts]
 def transformToBoard(img, pts):
@@ -102,7 +105,8 @@ def transformToBoard(img, pts):
     bordersize = 10
     bordererImage = cv2.copyMakeBorder(board, top=bordersize, bottom=bordersize, left=bordersize, right=bordersize,
                                        borderType=cv2.BORDER_CONSTANT, value=[255, 255, 255])
-
+    bordererImage = cv2.flip(bordererImage, 1)
+    bordererImage = cv2.rotate(bordererImage, cv2.ROTATE_90_COUNTERCLOCKWISE)
     return bordererImage
 
 
@@ -122,15 +126,18 @@ def setPoints(approx):
     rect[3] = approx[np.argmin(diff)]
     return rect
 def getBoard(frameColoured, threshold = 0):
-    #convert to gray image
-    frame = cv2.cvtColor(frameColoured, cv2.COLOR_BGR2GRAY)
-    #apply adaptive threshold
-    thresholded = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 15, threshold)
-    #find countours of the image
-    _, contours, _ = cv2.findContours(thresholded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #get the board and the corner points
-    [board, pts] = findBoard(contours, frame, frameColoured)
-    return [board, pts]
+    if frameColoured is not None:
+        #convert to gray image
+        frame = cv2.cvtColor(frameColoured, cv2.COLOR_BGR2GRAY)
+        #apply adaptive threshold
+        thresholded = cv2.adaptiveThreshold(frame, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 15, threshold)
+        #find countours of the image
+        _, contours, _ = cv2.findContours(thresholded, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        #get the board and the corner points
+        [board, pts] = findBoard(contours, frame, frameColoured)
+        return [board, pts]
+    else:
+        return [-1,-1]
 def getPieces(frame, thresholdPieces):
     #This function takes the image of the board and finds the squares and circles on it
     nbrofsquares = 0
@@ -145,7 +152,7 @@ def getPieces(frame, thresholdPieces):
     lap = cv2.Laplacian(thresholded, cv2.CV_64F)  # Applying Laplacian transform
     # Applying gradient morephological filter
     lap = cv2.morphologyEx(lap, cv2.MORPH_GRADIENT, kernel)
-    #
+    #display the laplacian for better adjustment of thresholding
     cv2.imshow("lap", lap)
     #################################### Preprocessing ended ###########################################################
     piecesMatrix = []
@@ -154,8 +161,6 @@ def getPieces(frame, thresholdPieces):
     _, contours, _ = cv2.findContours(lap.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Getting min required area of the square to be accepted !
     # Looping through the contours detected previously
-
-
     map_matrix= [[0, 0] for i in range(64)] # map matrix stores the coordinates of every single square within the board
     i, k = 0, 0
     # ends here
@@ -185,12 +190,18 @@ def getPieces(frame, thresholdPieces):
     #################################### Contours manipulation ended ! ########################################################
     cv2.imshow("squares", frame)
     #find circles in the board
-    piecesMatrix, frame = getCircles(circlesFrame)
-    cv2.imshow("circles", frame)
+    piecesMatrix, circledFrame = getCircles(circlesFrame)
+    if type(circledFrame) is np.ndarray:
+        #we have an image with circles
+        pass
+    else:
+        #no circles were detected
+        pass
     #add the pieces matrix to the map matrix, so that we have all the centers of both squares and circles
     map_matrix = map_matrix + piecesMatrix
     #filter the position by removing duplicate centers, if a crcles is on a square and both centers are on map matrix, delete one
-    map_matrix = filterPositionsMatrix(map_matrix)
+    if len(map_matrix) > 63:
+        map_matrix = filterPositionsMatrix(map_matrix)
     #if we have 64 squares detected, display the results
     if len(map_matrix) == 64:
         # pass message that the board is fully detected
@@ -198,12 +209,13 @@ def getPieces(frame, thresholdPieces):
         mapped = mapping(map_matrix)  ### using the mapping function we rearrange the stored values in map matrix ###
         Out_matrix = Pieces_to_Matrix(piecesMatrix, mapped)
         print(Out_matrix)
-    elif nbrofsquares < 64 and nbrofsquares > 10:
+    elif len(map_matrix) < 64 and len(map_matrix) > 5:
         #pass message that chess board is partially detected message
+        return 0
         pass
     else:
         #pass message that the board cannot be seen in the picture
-        pass
+        return -1
     return [nbrofsquares, piecesMatrix,frame]
 
 def filterPositionsMatrix(map):
@@ -217,14 +229,21 @@ def filterPositionsMatrix(map):
     repeatedCenters = []
     for i in range(0, len(map)):
         for j in range(i +1, len(map)):
-            if abs(map[i][2]  - map[j][2]) < 40 and abs(map[i][1]  - map[j][1]) < 25 and abs(map[i][0]  - map[j][0]) < 25:
+            if abs(map[i][2]  - map[j][2]) < 40 and abs(map[i][1] - map[j][1]) < 10 and abs(map[i][0]  - map[j][0]) < 10:
                 repeatedCenters.append(j)
     #delete the added axis
     for i in range(len(map)):
         del map[i][2]
+    repeatedCenters.sort(key=lambda x: x, reverse= True)
+    print(repeatedCenters)
     #delete the repeated centers
     for i in repeatedCenters:
-        del map[i]
+            try:
+                del map[i]
+            except(IndexError):
+                print(str(i) + "     " + str(len(map)))
+                print(repeatedCenters)
+                print(map)
     return map
 def getCircles(frame):
     #This function is used to detect circles on the image, which are the piecesa and return their centers
@@ -236,7 +255,6 @@ def getCircles(frame):
     # Casting the content of circles
     if circles is not None:
         circles = np.round(circles[0, :]).astype('int')
-
         # If board detected, let's detect the pieces !
         for (Cx, Cy, r) in circles:
             nbrofcircles += 1
@@ -246,12 +264,12 @@ def getCircles(frame):
             cv2.rectangle(frame, (Cx - 5, Cy - 5), (Cx + 5, Cy + 5), (0, 128, 255), -1)
             #add the centers to the pieces matrix so that they can be processed later
             piecesMatrix.append([Cx, Cy])
-    return [piecesMatrix, frame]
-
+        return [piecesMatrix, frame]
+    else:
+        #pass some information that there are no circles detected
+        return[[],[]]
 def nothing(x):
     pass
-
-
 def main():
 	## Pi specific
     
@@ -284,39 +302,58 @@ def main():
         #read frame from camera
         frame = image.array
         #print the frame
-        cv2.imshow("original", frame)
+        cv2.imshow("frame", frame)
         #try catch block to avoid errors
         try:
-            if nbrofsquares == 64:
-                #get the board image from saved coordinates to speed up the process
-                ret = transformToBoard(frame, pts)
-                #convert the image to gray scale
-                frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
+            if frame is not None:
+                #intiate the board image
+                boardImage = None
+                # print the frame
+                cv2.imshow("frame", frame)
+                if nbrofsquares == 64:
+                    #get the board image from saved coordinates to speed up the process
+                    boardImage = transformToBoard(frame, pts)
+                else:
+                    #find the board image
+                    ret = getBoard(frame, thresholdBoard)
+                    if type(ret[0]) is np.ndarray:
+                        #convert to gray scale
+                        boardImage = ret[0]
+                        cv2.imshow("chess", boardImage)
+                        #save the points of the corner for later use
+                        pts = ret[1]
+                    else:
+                        #pass that the chess board was not cropped
+                        pass
+                if boardImage is not None:
+                        grayFrame = cv2.cvtColor(boardImage, cv2.COLOR_BGR2GRAY)
+                        ret = getPieces(grayFrame, thresholdPieces)
+                        if isinstance(ret, list):
+                            nbrofsquares, nbrofcircles, img = ret
+                            print("number of circles: " + str(len(nbrofcircles)))
+                            cv2.imshow("circles on image", img)
+                        elif ret == 0:
+                            #the board is partially detected
+                            nbrofsquares = 0
+                            nbrofcircles = 0
+                        else:
+                            #the board cannot be seen
+                            nbrofsquares = 0
+                            nbrofcircles = 0
+                else:
+                    #there is no board
+                    nbrofsquares = 0
+                    nbrofcircles = 0
+                    pass
             else:
-                #find the board image
-                ret = getBoard(frame, thresholdBoard)
-                #convert to gray scale
-                if ret[0]:
-                    frame = cv2.cvtColor(ret[0], cv2.COLOR_BGR2GRAY)
-                    #save the points of the corener for later use
-                    pts = ret[1]
-                    nbrofsquares, nbrofcircles, img = getPieces(frame, thresholdPieces)
-                    print("number of circles: " + str(len(nbrofcircles)))
-                    cv2.imshow("frame", img)
-
-            # Get pressed key by user
-            key = cv2.waitKey(1) & 0xFF
-            
-            # Clear the stream in preparation for the next frame
-            rawCapture.truncate(0)
-
-            if key == ord('q'):
+                #there is no frame from the camera
+                nbrofsquares = 0
+                nbrofcircles = 0
+                pass
+            if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        except (AttributeError):
+        except (IndentationError):
             print("I am in an error")
-    capture.release()
     cv2.destroyAllWindows()
-
-
 if __name__ == '__main__':
     main()
