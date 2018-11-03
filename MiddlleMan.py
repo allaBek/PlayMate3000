@@ -2,10 +2,12 @@ class MiddleMan:
     data = []
     lock = None
     sharedData = None
+    
     def __init__(self, sharedData, lock):
         self.sharedData = sharedData
         self.lock = lock
-    def getCommand(self, command = ""):
+
+    def getCommand(self, command):
         if self.sharedData.empty() == True:
             for i in self.data:
                 if i[0] == command:
@@ -16,7 +18,7 @@ class MiddleMan:
             while self.sharedData.empty() is False:
                 data.append(self.sharedData.get())
             self.lock.release()
-            if not (data == []):
+            if len(data) > 0:
                 self.data = data
             for i in self.data:
                 if i[0] == command:
