@@ -352,6 +352,7 @@ def main():
                 pass
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
+            rawCapture.truncate(0)
         except (IndentationError):
             print("I am in an error")
     cv2.destroyAllWindows()
