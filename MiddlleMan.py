@@ -2,11 +2,10 @@ class MiddleMan:
     data = []
     lock = None
     sharedData = None
-
+    checkList = ["pieces","board","arm", "image"]
     def __init__(self, sharedData, lock):
         self.sharedData = sharedData
         self.lock = lock
-
     def getCommand(self, command):
         if self.sharedData.empty() == True:
             for i in self.data:
