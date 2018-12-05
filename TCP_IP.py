@@ -2,9 +2,9 @@ from multiprocessing import process
 import  MiddlleMan
 import TCP_manager
 
-def start(sharedData, lock):
-    com_manager = TCP_manager.TcpManagerClass()
-    midMan = MiddlleMan.MiddleMan(sharedData, lock)
+def start(sharedData, lock, com_param, logger):
+    com_manager = TCP_manager.TcpManagerClass(com_param, logger)
+    midMan = MiddlleMan.MiddleMan(sharedData, lock, logger)
     while True:
         #print("tcp_ip process is running")
         ###################################### Listening ####################################################################

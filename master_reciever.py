@@ -2,8 +2,8 @@
 import socket
 
 
-TCP_IP = '192.168.1.108'		# Put here your computer's IP
-TCP_PORT = 4005					# Put here the Slave-to-Master Port
+TCP_IP = '127.0.0.1'		# Put here your computer's IP
+TCP_PORT = 4005				# Put here the Slave-to-Master Port
 BUFFER_SIZE = 1024 # Normally 1024, but we want fast response
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

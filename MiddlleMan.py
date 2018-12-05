@@ -3,10 +3,16 @@ class MiddleMan:
     lock = None
     sharedData = None
     checkList = ["pieces","board","arm", "image"]
-    def __init__(self, sharedData, lock):
+    logger = None
+
+    def __init__(self, sharedData, lock, logger):
         self.sharedData = sharedData
         self.lock = lock
+        self.logger = logger
+
     def getCommand(self, command):
+        logger.info('Get command reached')
+
         if self.sharedData.empty() == True:
             for i in self.data:
                 if i[0] == command:
@@ -14,6 +20,7 @@ class MiddleMan:
         else:
             self.lock.acquire()
             data = []
+            logger.info('Lock state : '+ self.sharedData.empty())
             while self.sharedData.empty() is False:
                 data.append(self.sharedData.get())
             self.lock.release()
