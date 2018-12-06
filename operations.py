@@ -67,10 +67,22 @@ class operations():
         # looping and cutting:
         for i in range(r):
 
-            for j in range(c):
-                cropped_image=image[y:y+h,x:x+w]
-                stored_images.append(cropped_image)
-                x=x+w
-            x=int(corners[0][0])
-            y=y+h
-        return stored_images 
+
+                if i==0:
+                    for j in range(c):
+                        cropped_image=image[y:y+h,x:x+w]
+                        stored_images.append(cropped_image)
+                        x=x+w
+                else:
+                    x = int(corners[0][0])
+                    # y = int(mapped_matrix[0][i - 1][1])
+                    y=y+h
+                    for j in range(c):
+                        cropped_image = image[y:y + h, x:x + w]
+                        stored_images.append(cropped_image)
+                        # x = int(mapped_matrix[i-1][j-1][0])
+                        x=x+w
+
+
+        return stored_images
+ 
