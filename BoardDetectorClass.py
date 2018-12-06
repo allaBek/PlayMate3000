@@ -31,7 +31,7 @@ class BoardDetector:
         corners[0][1] = 2 * mapped[0][0][1] - mapped[1][0][1]
 
         corners[1][0] = 2 * mapped[0][c - 1][0] - mapped[0][c - 2][0]
-        corners[1][1] = 2 * mapped[0][c - 1][1] - mapped[1][c - 2][1]
+        corners[1][1] = 2 * mapped[0][c - 1][1] - mapped[1][c - 1][1]
 
         corners[2][0] = 2 * mapped[r - 1][0][0] - mapped[r - 1][1][0]
         corners[2][1] = 2 * mapped[r - 1][0][1] - mapped[r - 2][1][1]
