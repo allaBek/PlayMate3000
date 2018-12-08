@@ -140,28 +140,25 @@ class operations():
                         x=x+w
         return stored_images
     
-    def imageSlices2(image,mapped_matrix):
-        #This function cuts down the image in small images 
-        #starting from x,y=0,0
-        x=0
-        y=0
+    def imageSlices2(image, height=400, width=400,r=8,c=8):
+        # This function cuts down the image in small images
+        # starting from x,y=0,0
+        x = 0
+        y = 0
         # w is the width which by we cut each small picture
-        w=int(mapped_matrix[0][1][0]-mapped_matrix[0][0][0])
+        w=int(height/8)
         # h is the height which by we cut each small picture
-        h=int(mapped_matrix[1][0][1]-mapped_matrix[0][0][1])
-        # number of rows r, and number of columns c in input matrix.
-        r = len(mapped_matrix)+1
-        c = len(mapped_matrix[0])+1
+        h=int(width/8)
         # we shall store all the output small images into the matrix
         #  small_images:
-        stored_images=[]
+        stored_images = []
         # looping and cutting:
         for i in range(r):
             for j in range(c):
-                cropped_image=image[y:y+h,x:x+w]
+                cropped_image = image[y:y + h, x:x + w]
                 stored_images.append(cropped_image)
-                x=x+w
-            x=0   
-            y=y+h
+                x = x + w
+            x = 0
+            y = y + h
         return stored_images
  
