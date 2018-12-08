@@ -7,11 +7,13 @@ The class includes three main functions : --reArrange-- , --getCorners-- and --i
 the funtion --reArrange-- does the job of taking a --matrix-- containing pair elements (x and y, as an image array of pixels)
 and its rows --r-- and columns --c-- as an input and gives a sorted matrix in ascending order as an output.
 
-### example
+#### example
 let try re-arranging the next 8x8 matrix
 map=[
     [10, 15],[7, 5],[6, 23],[9, 43],[44, 9],[21, 3],[34, 100],[23,55],
+    
     [89, 67],[1, 67],[134, 89],[89, 56],[43, 76],[32, 12],[133, 12],[91, 66],
+    
     [9, 8], [51, 15], [15, 71], [17, 98], [23, 92], [167, 157], [135, 126], [126, 67],
     [10, 15], [8, 16], [6, 23], [9, 43], [44, 9], [21, 3], [34, 100], [23, 55],
     [89, 67], [1, 67], [134, 89], [89, 56], [43, 76], [32, 12], [133, 12], [91, 66],
@@ -38,7 +40,7 @@ as we see, it is arranged based on both the x and y axis, as an array of pixels 
 
 
 
-### getCorners(mapped)
+#### getCorners(mapped)
 
 
 
