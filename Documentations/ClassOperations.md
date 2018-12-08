@@ -3,7 +3,7 @@ This class contains functions made to perform the operations needed throughout
 the the process of the vision system of Playmate3000.
 The class includes three main functions : --reArrange-- , --getCorners-- and --imageSlices--
 
-### reArrange(matrix,r,c)
+#### reArrange(matrix,r,c)
 the funtion --reArrange-- does the job of taking a --matrix-- containing pair elements (x and y, as an image array of pixels)
 and its rows --r-- and columns --c-- as an input and gives a sorted matrix in ascending order as an output.
 
