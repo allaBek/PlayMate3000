@@ -1,5 +1,5 @@
 ## Description
-This class contains functions made to perform the operations needed throughout 
+This class **operations** contains functions made to perform the operations needed throughout 
 the the process of the vision system of Playmate3000.
 The class includes three main functions : ***reArrange*** , ***getCorners*** and ***imageSlices***
 
@@ -46,6 +46,11 @@ as we see, it is arranged based on both the x and y axis, as an array of pixels 
 
 
 #### getCorners(mapped)
+the function getCorners extracts the corners of the board out of the mapped matrix of the given intersections coordinates.
+it gets the mapped matrix as input and four coordinates (x,y) of corners: top-left, top-right, bottom-left, bottom-right.
+
+##### get
+
 
 
 
