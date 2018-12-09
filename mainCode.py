@@ -8,7 +8,7 @@ import logging
 import TCP_IP, UART     # Com services resides here
 from BoardDetectorClass import BoardDetector
 from ArmDetectorClass import ArmDetector
-
+from operations import operations
 
 def getCommunicationType():
     print("Welcome to the PLAYMATE 3000 computer vision interface")
@@ -89,7 +89,12 @@ if __name__ == '__main__':
 
             # Initially, let's pass the frame to  see if the board is present or not
             status, board = boardDetectorObj.board_detector(frame=frame)
-
+           
+            # After the board got detected, we need to cut the image of the board into small squares for each 
+            # peice in order to use those slices in piece detection:
+            imageSlices=operation.imageSlices()
+            cutted_images=imageSlices2(board)
+           
             #print(status)
 
             if not status: # If the board is not detected, let's check if the arm is interrupting the view ! -
