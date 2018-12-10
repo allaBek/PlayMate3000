@@ -80,7 +80,7 @@ it takes these inputs and produces a number of small image squares as an output 
 
 #### example
 
-
+(images/2N.jpg)
 
 
 
