@@ -128,16 +128,16 @@ class operations():
                     for j in range(c):
                         cropped_image=image[y:y+h,x:x+w]
                         stored_images.append(cropped_image)
-                        x=x+w
+                        x=x+w+1
                 else:
                     x = int(corners[0][0])
                     # y = int(mapped_matrix[0][i - 1][1])
-                    y=y+h
+                    y=y+h+1
                     for j in range(c):
                         cropped_image = image[y:y + h, x:x + w]
                         stored_images.append(cropped_image)
                         # x = int(mapped_matrix[i-1][j-1][0])
-                        x=x+w
+                        x=x+w+1
         return stored_images
     
     def imageSlices2(image, height=400, width=400,r=8,c=8):
