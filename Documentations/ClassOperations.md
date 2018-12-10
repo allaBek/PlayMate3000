@@ -3,7 +3,7 @@ This class **operations** contains functions made to perform the operations need
 the the process of the vision system of Playmate3000.
 The class includes three main functions : ***reArrange*** , ***getCorners*** and ***imageSlices***
 
-#### a)reArrange(matrix,r,c)
+### a)reArrange(matrix,r,c)
 the funtion --reArrange-- does the job of taking a --matrix-- containing pair elements (x and y, as an image array of pixels)
 and its rows --r-- and columns --c-- as an input and gives a sorted matrix in ascending order as an output.
 
@@ -44,8 +44,8 @@ as we see, it is arranged based on both the x and y axis, as an array of pixels 
 
 
 
-#### b)getCorners(mapped)
-the function getCorners extracts the corners of the board out of the mapped matrix of the given intersections coordinates.
+### b)getCorners(mapped)
+the function ***getCorners*** extracts the corners of the board out of the mapped matrix of the given intersections coordinates.
 it gets the mapped matrix as input and four coordinates (x,y) of corners: top-left, top-right, bottom-left, bottom-right.
 
 #### example
@@ -70,6 +70,18 @@ we get as a result:
 ```
 [[7, 6], [133, 11], [3, 62], [208, 157]]
 ```
+
+### c)imageSlices(image, mapped_matrix, corners)
+
+the function ***imageSlices*** does the job of cutting the squares of the board containing the pieces in order to check 
+whether a peice exists or not in that square later on using another function. 
+so the inputs are the image ( which is the scene frame ), the already mapped matrix of intersections, and finally the gotten corners from the function getCorners or from wherever.
+it takes these inputs and produces a number of small image squares as an output in an array ( the number of squares depends on the mapped_matrix ) 
+
+#### example
+
+
+
 
 
 
