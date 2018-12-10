@@ -65,7 +65,7 @@ if __name__ == '__main__':
         logger.info('Process started !')
         proc = mp.Process(target=com[1].start, name='Communication', args=(sharedData, lock, com_param, logger))
     elif choice == '2':
-        print("You have chosen I2C protocol as the main communication interface!")
+        print("You have chosen UART protocol as the main communication interface!")
         proc = mp.Process(target=com[0].start, name='Communication', args=(sharedData, lock))
     proc.start()
 
@@ -114,22 +114,19 @@ if __name__ == '__main__':
     '''
     lock.acquire()
     logger.info('Lock acquired ! ')
-    #while sharedData.empty() is False:
-    while True:
-
-        # just testing 
-        board = np.random.random((8, 8))
-        pieces = np.random.random((8, 8, 3))
-        piece = [1, 2, 3]
-        arm_position = np.random.random((1,2))
-        #
-        logger.info('Writting data!')
+    while sharedData.empty() is False:
         sharedData.get()
-        sharedData.put(["pieces", pieces])
-        sharedData.put(["board", board])
-        sharedData.put(["piece", piece])
-        sharedData.put(["arm", arm_position])
-        lock.release()
+    board = np.random.random((8, 8))
+    pieces = np.random.random((8, 8, 3))
+    piece = [1, 2, 3]
+    arm_position = np.random.random((1,2))
+    logger.info('Writting data!')
+    sharedData.get()
+    sharedData.put(["pieces", pieces])
+    sharedData.put(["board", board])
+    sharedData.put(["piece", piece])
+    sharedData.put(["arm", arm_position])
+    lock.release()
 
         
     #capture.release()

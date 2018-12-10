@@ -73,13 +73,8 @@ def on_high_V_thresh_trackbar(val):
     high_V = val
     high_V = max(high_V, low_V + 1)
     cv.setTrackbarPos(high_V_name, window_detection_name, high_V)
-#Get the directory containing player1, player2 images
-parser = argparse.ArgumentParser(description='Get player1 and player2 images directories')
-parser.add_argument('--player1', help='Directory containing player1 images.', default=r"C:\Users\moham\Desktop\myData\player2", type=str)
-parser.add_argument('--player2', help='Directory containing player2 images.', default=r"C:\Users\moham\Desktop\myData\player1", type=str)
-args = parser.parse_args()
-path1 = args.player1
-path2 = args.player2
+path1 = "{}\\{}".format(os.getcwd(), "Player_1")
+path2 = "{}\\{}".format(os.getcwd(), "Player_2")
 list_of_images_1 = []
 list_of_images_2 = []
 for file in files(path1):

@@ -11,7 +11,7 @@ class MiddleMan:
         self.logger = logger
 
     def getCommand(self, command):
-        logger.info('Get command reached')
+        self.logger.info('Get command reached')
 
         if self.sharedData.empty() == True:
             for i in self.data:
@@ -20,7 +20,7 @@ class MiddleMan:
         else:
             self.lock.acquire()
             data = []
-            logger.info('Lock state : '+ self.sharedData.empty())
+            self.logger.info('Lock state : '+ self.sharedData.empty())
             while self.sharedData.empty() is False:
                 data.append(self.sharedData.get())
             self.lock.release()
