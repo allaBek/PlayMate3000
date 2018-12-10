@@ -3,7 +3,7 @@ This class **operations** contains functions made to perform the operations need
 the the process of the vision system of Playmate3000.
 The class includes three main functions : ***reArrange*** , ***getCorners*** and ***imageSlices***
 
-#### reArrange(matrix,r,c)
+#### a)reArrange(matrix,r,c)
 the funtion --reArrange-- does the job of taking a --matrix-- containing pair elements (x and y, as an image array of pixels)
 and its rows --r-- and columns --c-- as an input and gives a sorted matrix in ascending order as an output.
 
@@ -23,8 +23,7 @@ map=[
 ]
 ```
 
-so simply we give the inputs for the function as:
---reArrange(map,8,8)--
+so simply we give the inputs for the function as: **reArrange**(map,8,8)
 
 the output would be:
 ```
@@ -45,13 +44,32 @@ as we see, it is arranged based on both the x and y axis, as an array of pixels 
 
 
 
-#### getCorners(mapped)
+#### b)getCorners(mapped)
 the function getCorners extracts the corners of the board out of the mapped matrix of the given intersections coordinates.
 it gets the mapped matrix as input and four coordinates (x,y) of corners: top-left, top-right, bottom-left, bottom-right.
 
-##### get
+#### example
 
+let's take an example of already rearranged matrix using reArrange function: 
+```
+[[14, 9], [21, 3], [32, 12], [32, 12], [44, 9], [66, 23], [133, 12], [133, 12]]
+[[10, 12], [21, 3], [23, 55], [32, 12], [44, 9], [91, 43], [133, 12], [134, 13]]
+[[12, 12], [21, 3], [23, 55], [34, 47], [44, 9], [89, 56], [93, 33], [134, 15]]
+[[9, 13], [16, 23], [23, 55], [43, 76], [51, 15], [89, 56], [91, 66], [134, 20]]
+[[10, 15], [19, 43], [22, 57], [43, 76], [51, 15], [89, 56], [91, 66], [135, 126]]
+[[10, 15], [15, 71], [30, 67], [34, 100], [46, 23], [89, 67], [91, 66], [135, 126]]
+[[10, 15], [17, 98], [23, 92], [34, 100], [61, 23], [89, 67], [126, 67], [167, 157]]
+[[10, 80], [17, 98], [23, 92], [34, 100], [43, 76], [89, 67], [126, 67], [167, 157]]
+```
 
+using the function getCorners we get the four corners of the above matrix:
+
+**getCorners(mapped)**
+
+we get as a result:
+```
+[[7, 6], [133, 11], [3, 62], [208, 157]]
+```
 
 
 
