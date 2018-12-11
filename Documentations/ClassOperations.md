@@ -79,8 +79,27 @@ so the inputs are the image ( which is the scene frame ), the already mapped mat
 it takes these inputs and produces a number of small image squares as an output in an array ( the number of squares depends on the mapped_matrix ) 
 
 #### example
+for example let's take this camera frame:
+which is 8x8 matrix of black and white squares.
 
-(images/2N.jpg)
+![chessboard](images/frame.png)
+
+using the above function we can get the chessboard squares, which results in the small following images:
+
+![images](images/small_imgs/333400.png)     ![images](images/small_imgs/333401.png)  ![images](images/small_imgs/333402.png) ![images](images/small_imgs/333403.png)  ![images](images/small_imgs/333404.png) ![images](images/small_imgs/333405.png) ![images](images/small_imgs/333406.png) ![images](images/small_imgs/333407.png)
+.
+![images](images/small_imgs/333410.png)  ![images](images/small_imgs/333411.png)
+... and so on.
+
+
+
+
+
+
+
+
+
+
 
 
 
