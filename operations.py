@@ -157,8 +157,8 @@ class operations():
             for j in range(c):
                 cropped_image = image[y:y + h, x:x + w]
                 stored_images.append(cropped_image)
-                x = x + w
+                x = x + w +1
             x = 0
-            y = y + h
+            y = y + h + 1
         return stored_images
  
