@@ -92,9 +92,10 @@ if __name__ == '__main__':
            
             # After the board got detected, we need to cut the image of the board into small squares for each 
             # peice in order to use those slices in piece detection:
-            imageCut=operations.imageSlices2(board)
-            matrix = Classification.pieces_matrix(imageCut)
-            #print(status)
+            if status:
+                imageCut=operations.imageSlices2(board)
+                matrix = Classification.pieces_matrix(imageCut)
+                #print(status)
 
             if not status: # If the board is not detected, let's check if the arm is interrupting the view ! -
                 # Let's see the frame
