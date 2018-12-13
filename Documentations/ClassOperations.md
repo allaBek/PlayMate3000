@@ -115,6 +115,14 @@ r and c are the same as we want (8,8)
 so the output would be as small images:
 
 ![images](images/small_imgs/00.png)     ![images](images/small_imgs/01.png)  ![images](images/small_imgs/02.png) ![images](images/small_imgs/03.png)  ![images](images/small_imgs/04.png) ![images](images/small_imgs/05.png) ![images](images/small_imgs/06.png) ![images](images/small_imgs/07.png) 
+... and so on until 64.
+
+
+### e) getCorners2(mapped)
+
+This is another version for getting corners, the other version getCorners has some glitches in detecting the corners if the board is not well aligned, while this version works for any direction and any angle of the board, even if the board is not that aligned. 
+the syntax is simply the same for both functions.
+
 
 
 
