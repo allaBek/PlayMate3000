@@ -47,7 +47,13 @@ class operations():
         return corners
     
     def getCorners2(mapped):
+        '''
+        this function is an enhanced version for detection of the board corners.
+        the same syntax as the other function getCorers
+        '''
+        
         a=mapped
+        #storing pair coordinates in lists x and y
         x=[]
         y=[]
         r=len(mapped)
@@ -56,7 +62,7 @@ class operations():
             for j in range(c):
                 x.append([a[i][j][0]])
                 y.append([a[i][j][1]])
-
+        
         min_x=x.index(min(x))
         a1=int((min_x-min_x%r)/r)
         b1=min_x%r
