@@ -1,7 +1,7 @@
 ## Description
 This class **operations** contains functions made to perform the operations needed throughout 
 the the process of the vision system of Playmate3000.
-The class includes three main functions : ***reArrange*** , ***getCorners*** and ***imageSlices***
+The class includes the functions : ***reArrange*** , ***getCorners***,  ***imageSlices*** , ***imageSlices2*** and ***getCorners2***
 
 ### a)reArrange(list_array,r,c)
 *list_array*: is a list of pair elements to be arranged as r by c arranged matrix
