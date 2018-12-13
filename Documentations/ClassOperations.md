@@ -3,12 +3,16 @@ This class **operations** contains functions made to perform the operations need
 the the process of the vision system of Playmate3000.
 The class includes three main functions : ***reArrange*** , ***getCorners*** and ***imageSlices***
 
-### a)reArrange(matrix,r,c)
-the funtion --reArrange-- does the job of taking a --matrix-- containing pair elements (x and y, as an image array of pixels)
+### a)reArrange(list_array,r,c)
+*list_array*: is a list of pair elements to be arranged as r by c arranged matrix
+*r*: number of rows of the reArranged matrix 
+*c*: number of columns of the reArranged matrix
+
+the funtion --reArrange-- does the job of taking a --list_array-- containing pair elements (x and y, as an image array of pixels)
 and its rows --r-- and columns --c-- as an input and gives a sorted matrix in ascending order as an output.
 
 #### example
-let try re-arranging the next 8x8 matrix
+let try re-arranging the next 64 pair list of elements
 ```
 
 map=[
@@ -73,7 +77,7 @@ we get as a result:
 
 ### c)imageSlices(image, mapped_matrix, corners)
 
-the function ***imageSlices*** does the job of cutting the squares of the board containing the pieces in order to check 
+the function ***imageSlices*** does the job of cutting the squares of the board in the scene containing the pieces in order to check 
 whether a peice exists or not in that square later on using another function. 
 so the inputs are the image ( which is the scene frame ), the already mapped matrix of intersections, and finally the gotten corners from the function getCorners or from wherever.
 it takes these inputs and produces a number of small image squares as an output in an array ( the number of squares depends on the mapped_matrix ) 
@@ -91,9 +95,26 @@ using the above function we can get the chessboard squares, which results in the
 ![images](images/small_imgs/333410.png)  ![images](images/small_imgs/333411.png)
 ... and so on.
 
+### d) imageSlices2(frame,height=400, width=400,r=8,c=8)
 
+this function simply cuts down the whole frame into small squares from the begining till the end.
+by default the height and the width of the frame are 400x400, and the rows and columns are 8 by 8 as well.
 
+#### example
 
+let take the next image as an example :
+
+![images](images/2NN.png)
+
+this image has height of 852 and width of 859
+so the function would be as following:
+
+*imageSlices2(image, height=852, width=859)* 
+r and c are the same as we want (8,8)
+
+so the output would be as small images:
+
+![images](images/small_imgs/00.png)     ![images](images/small_imgs/01.png)  ![images](images/small_imgs/02.png) ![images](images/small_imgs/03.png)  ![images](images/small_imgs/04.png) ![images](images/small_imgs/05.png) ![images](images/small_imgs/06.png) ![images](images/small_imgs/07.png) ![images](images/small_imgs/10.png)     ![images](images/small_imgs/11.png)  ![images](images/small_imgs/12.png) ![images](images/small_imgs/13.png)  ![images](images/small_imgs/14.png) ![images](images/small_imgs/15.png) ![images](images/small_imgs/16.png) ![images](images/small_imgs/17.png)
 
 
 
