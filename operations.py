@@ -2,16 +2,16 @@
 
 class operations():
 
-    def reArrange(matrix, r, c):
+    def reArrange(list_array, r, c):
         ### initialize the matrix where the sorted values will be
         # r for rows, and c for columns of matrix,
         sorted_matrix = [[[0, 0]] * c for i in range(r)]
         # looping through the columns, i ,
         for i in range(c):
             # sorting according to x coordinate
-            matrix.sort(key=lambda tup: tup[0])
+            list_array.sort(key=lambda tup: tup[0])
             # we take each column apart and re arrange its y coordinate
-            a = matrix[i * r:(i + 1) * r]
+            a = list_array[i * r:(i + 1) * r]
             a.sort(key=lambda tup: tup[1])
             # storing the sorted values in the i column,
             for j in range(r):
