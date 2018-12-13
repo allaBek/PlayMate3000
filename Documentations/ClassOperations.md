@@ -114,8 +114,7 @@ r and c are the same as we want (8,8)
 
 so the output would be as small images:
 
-![images](images/small_imgs/00.png)     ![images](images/small_imgs/01.png)  ![images](images/small_imgs/02.png) ![images](images/small_imgs/03.png)  ![images](images/small_imgs/04.png) ![images](images/small_imgs/05.png) ![images](images/small_imgs/06.png) ![images](images/small_imgs/07.png) ![images](images/small_imgs/10.png)     ![images](images/small_imgs/11.png)  ![images](images/small_imgs/12.png) ![images](images/small_imgs/13.png)  ![images](images/small_imgs/14.png) ![images](images/small_imgs/15.png) ![images](images/small_imgs/16.png) ![images](images/small_imgs/17.png)
-
+![images](images/small_imgs/00.png)     ![images](images/small_imgs/01.png)  ![images](images/small_imgs/02.png) ![images](images/small_imgs/03.png)  ![images](images/small_imgs/04.png) ![images](images/small_imgs/05.png) ![images](images/small_imgs/06.png) ![images](images/small_imgs/07.png) 
 
 
 
