@@ -2,16 +2,16 @@
 
 class operations():
 
-    def reArrange(matrix, r, c):
+    def reArrange(list_array, r, c):
         ### initialize the matrix where the sorted values will be
         # r for rows, and c for columns of matrix,
         sorted_matrix = [[[0, 0]] * c for i in range(r)]
         # looping through the columns, i ,
         for i in range(c):
             # sorting according to x coordinate
-            matrix.sort(key=lambda tup: tup[0])
+            list_array.sort(key=lambda tup: tup[0])
             # we take each column apart and re arrange its y coordinate
-            a = matrix[i * r:(i + 1) * r]
+            a = list_array[i * r:(i + 1) * r]
             a.sort(key=lambda tup: tup[1])
             # storing the sorted values in the i column,
             for j in range(r):
@@ -47,7 +47,13 @@ class operations():
         return corners
     
     def getCorners2(mapped):
+        '''
+        this function is an enhanced version for detection of the board corners.
+        the same syntax as the other function getCorers
+        '''
+        
         a=mapped
+        #storing pair coordinates in lists x and y
         x=[]
         y=[]
         r=len(mapped)
@@ -56,7 +62,7 @@ class operations():
             for j in range(c):
                 x.append([a[i][j][0]])
                 y.append([a[i][j][1]])
-
+        
         min_x=x.index(min(x))
         a1=int((min_x-min_x%r)/r)
         b1=min_x%r
@@ -157,8 +163,8 @@ class operations():
             for j in range(c):
                 cropped_image = image[y:y + h, x:x + w]
                 stored_images.append(cropped_image)
-                x = x + w +1
+                x = x + w 
             x = 0
-            y = y + h + 1
+            y = y + h 
         return stored_images
  
