@@ -1,6 +1,5 @@
-from multiprocessing import process
-import  MiddlleMan
-import TCP_manager
+from Communication import MiddlleMan, TCP_manager
+
 
 def start(sharedData, lock, com_param, logger):
     com_manager = TCP_manager.TcpManagerClass(com_param, logger)

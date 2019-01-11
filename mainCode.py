@@ -1,12 +1,11 @@
 import multiprocessing as mp
 import numpy as np
-import time, sys, netifaces
+import sys, netifaces
 import cv2
-import os
 import logging
-import Classification
+from pieces_detection import Classification
 ########### Own Classes ################
-import TCP_IP, UART     # Com services resides here
+from Communication import TCP_IP, UART
 from BoardDetectorClass import BoardDetector
 from ArmDetectorClass import ArmDetector
 from operations import operations

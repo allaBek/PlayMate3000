@@ -2,11 +2,11 @@ import cv2
 import numpy as np
 import time
 import os
-
+#initiate variables
 drawing = False
 point1 = ()
 point2 = ()
-
+#This fucnton is used to take the button clicks coodinates to be used late n cropping images
 def mouse_drawing(event, x, y, flags, params):
     global point1, point2, drawing
     if event == cv2.EVENT_LBUTTONDOWN:
@@ -15,12 +15,11 @@ def mouse_drawing(event, x, y, flags, params):
             point1 = (x, y)
         else:
             drawing = False
- 
     elif event == cv2.EVENT_MOUSEMOVE:
         if drawing is True:
             point2 = (x, y)
+#This function crops pieces of the images
 def cut_images():
-
     cropped_ready = False
     cap = cv2.VideoCapture(0)
     cv2.namedWindow("Frame")
@@ -63,7 +62,7 @@ def cut_images():
                     if cropped_ready:
                         #Show corpped image
                         cv2.imshow('Cropped', cropped)
-                        #Save images to directories
+                        #Save images to directories, MAC or Linux users need tpo be changed to \\ to /
                         if c == ord('q'):
                             cv2.imwrite("{}\\{}\\{}.jpg".format(os.getcwd(), p, image), cropped)
                             break

@@ -1,6 +1,6 @@
 import serial
-from time import sleep
-import MiddlleMan
+from Communication import MiddlleMan
+
 
 def start(sharedData, lock, testingCommand = ''):
     print("started UART process")

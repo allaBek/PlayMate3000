@@ -1,8 +1,8 @@
 import multiprocessing as mp
 import numpy as np
 ########### Own Classes ################
-import UART     # Com services resides here
-import pytest
+from Communication import UART
+
 
 def test_UART():
     # A queue that will have the data shared between processes
