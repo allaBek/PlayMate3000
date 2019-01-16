@@ -52,10 +52,10 @@ python3 Acquire_threshold.py
 	```
 
 	- Follow the instructions printed on terminal.
-			master's ip: 127.0.0.1 (if you desire to use the localhost server)
-			master to slave port: 5005
-			slave to master port: 4005
-			buffer size: 1024
+			- master's ip: 127.0.0.1 (if you desire to use the localhost server)
+			- master to slave port: 5005
+			- slave to master port: 4005
+			- buffer size: 1024
       
       
     - On another terminal:
