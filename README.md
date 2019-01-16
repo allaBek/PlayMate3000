@@ -74,6 +74,15 @@ python3 Acquire_threshold.py
         ```
 		This will send a request to the main code to get arm position, board frame, pieces' position ..
 
+## General notes:
+
+- If you desire to use TCP/IP over a local or public network, you might need to consider the following:
+	- Once you get the main code running, you need to run the provided (or modified) versions of master_emitter & master_receiver. Use a text editor to change the IP addresses hardcoded into these files.
+	- You can change the ports too.
+	- You might need to allow receiving the data from these ports on the master computer. Please make sure your firewall would not block the inbound packets on these ports (In this case 5005 & 4005 ports). Of Ubuntu, you can use the following command:
+	``` sudo iptables -A INPUT -i lo -j ACCEPT
+	```
+
 ## Screenshots will be added soon :) !
 
 ## License
