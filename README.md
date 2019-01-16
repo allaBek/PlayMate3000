@@ -27,6 +27,7 @@ https://www.pyimagesearch.com/2018/08/15/how-to-install-opencv-4-on-ubuntu/
 ```
 python3 Cut_images_pi.py
 ```
+
 You will need to select pieces on the board that the main code will try to detect later on.
 Once you run this program, the instructions on how to proceed will be printed on terminal window. Please follow these instructions.
 --- Screen shot 1 will be added soon
@@ -46,9 +47,9 @@ python3 Acquire_threshold.py
 
 3) At this point, everything is ready to run the main program. Run the main program by issuing the following command (note the use of python 2)
 
-```
-python2 mainCode_pi.py
-```
+	```
+	python2 mainCode_pi.py
+	```
 
 	- Follow the instructions printed on terminal.
 			master's ip: 127.0.0.1 (if you desire to use the localhost server)
@@ -63,25 +64,17 @@ python2 mainCode_pi.py
         python2 master_receiver.py
         ```
 
-			This will keep listening. Whenever a message from the main program is sent, it will be displayed here !
+		This will keep listening. Whenever a message from the main program is sent, it will be displayed here !
 
 		- On another terminal:
 			- run master_emitter.py by issuing the following command:
-      ```
-		  python2 master_emitter.py
-      ```
+			
+        ```
+        python2 master_emitter.py
+        ```
+		This will send a request to the main code to get arm position, board frame, pieces' position ..
 
-			This will send a request to the main code to get arm position, board frame, pieces' position ..
-
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
+## Screenshots will be added soon :) !
 
 ## License
 
