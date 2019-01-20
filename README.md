@@ -45,13 +45,17 @@ python3 Acquire_threshold.py
   - At the end of the program, a text file will be generated. It is named: threshold.txt. It will contain the threshold
   values to be used by the main code to detect the pieces.
 
-3) At this point, everything is ready to run the main program. Run the main program by issuing the following command (note the use of python 2)
-
-	```
-	python2 mainCode_pi.py
-	```
-
-	- Follow the instructions printed on terminal.
+3) At this point, everything is ready to run the main program. Run the main program by issuing the following command (note the use of different python versions)
+It is recommended to run the program using python 3.5 or higher:
+```
+python3 mainCode_pi.py
+```
+or 
+```
+python2 mainCode_pi.py
+```
+	
+- Follow the instructions printed on terminal.
 		- master's ip: 127.0.0.1 (if you desire to use the localhost server)
 		- master to slave port: 5005
 		- slave to master port: 4005
@@ -59,7 +63,11 @@ python3 Acquire_threshold.py
       
       
     - On another terminal:
-    	  - run master_receiver.py by issuing the following command:
+    	  - run master_receiver.py by issuing one of the following commands:
+	  
+        ```
+        python3 master_receiver_3.py
+        ```
         ```
         python2 master_receiver.py
         ```
@@ -70,6 +78,8 @@ python3 Acquire_threshold.py
 			- run master_emitter.py by issuing the following command:
 			
         ```
+        python3 master_emitter_3.py
+        ``` ```
         python2 master_emitter.py
         ```
 		This will send a request to the main code to get arm position, board frame, pieces' position ..
@@ -88,8 +98,7 @@ ex:
 sudo iptables -A INPUT -i wlan0 -j ACCEPT -p 5005
 ```
 
-## Screenshots will be added soon :) !
-
+## Please check the demostration videos on the demostrations file !
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
