@@ -53,7 +53,7 @@ def main():
     board = np.random.random((8, 8))
     pieces = np.random.random((8, 8, 3))
     piece = [1, 2, 3]
-    arm_position = np.random.random((1,2))
+    arm_position = [0,0]
     ###### Board detection variables end ####################
 
     # A queue that will have the data shared between processes
@@ -137,8 +137,8 @@ def main():
                     cv2.imshow('board', board)
                     cv2.imshow('frame', frame)
             
-                pieces = np.zeros((8, 8, 3))
-                piece = [1, 2, 3]
+                pieces = matrix
+                piece = 'not implemented !'
                 
                 lock.acquire()
                 while sharedData.empty() is False:
