@@ -5,6 +5,9 @@ import cv2
 import os
 import logging
 import time
+## Pi modules
+from picamera import PiCamera
+from picamera.array import PiRGBArray
 
 ########### Own Classes ################
 import TCP_IP, UART     # Com services resides here
@@ -53,7 +56,7 @@ def main():
     board = np.random.random((8, 8))
     pieces = np.random.random((8, 8, 3))
     piece = [1, 2, 3]
-    arm_position = np.random.random((1,2))
+    arm_position = [0, 0]
     ###### Board detection variables end ####################
 
     # A queue that will have the data shared between processes
@@ -76,7 +79,17 @@ def main():
     
 #################################################### Board detection ############################################
     
-   
+    ## Pi specific
+    # Initialize the camera
+    camera = PiCamera()
+    camera.resolution = (640,480)
+    camera.framerate = 30
+    camera.sensor_mode = 1      # 5 might be also interesting. # It controls the field of view FoV
+    rawCapture = PiRGBArray(camera, size=(640,480))
+
+    # Allow camera to warmup
+    time.sleep(1)
+
     ## Image processing parameter    
     arm_start_delay = 20 # Delay time in seconds. This specifies the delay time between arm feedback start with reference to the program launch time
     frate_limit = 10    # Frame update rate limit
@@ -93,17 +106,12 @@ def main():
     # Start timer
     start_time = int(round(time.time() * 1000 )) # Get starting time in milliseconds
             
-
-    # Open camera
-    capture = cv2.VideoCapture(0)
-
     #this will have the number of squares on the image
-    while True:
+    for image in camera.capture_continuous(rawCapture, format = "bgr", use_video_port=True):
         #read frame from camera
-        cam_found, frame = capture.read()
-
+        frame = image.array
         #try catch block to avoid errors
-        if cam_found:  # bframe stands for boolean frame => frame status
+        if list(frame):  # bframe stands for boolean frame => frame status
             count += 1
             # Apply frame rate limiter 
             if (count % frate_limit) == 0:
@@ -112,7 +120,7 @@ def main():
                 # Initially, let's pass the frame to  see if the board is present or not
                 status, board = boardDetectorObj.board_detector(frame=frame)
 
-                print("board detected: ", str(status))
+                #print("board detected: ", str(status))
 
                 if not status: # If the board is not detected, let's check if the arm is interrupting the view ! -
                     # Let's see the frame
@@ -134,12 +142,12 @@ def main():
                     
                     imageCut = boardDetectorObj.imageSlices2(board)
                     matrix = Classification.pieces_matrix(imageCut)
+                    #print(matrix)  # Printing the pieces matrix
                     cv2.imshow('board', board)
                     cv2.imshow('frame', frame)
             
-                pieces = np.zeros((8, 8, 3))
-                piece = [1, 2, 3]
-                
+                pieces = matrix
+                piece = 'not implemented !'                
                 lock.acquire()
                 while sharedData.empty() is False:
                     sharedData.get()
@@ -149,11 +157,12 @@ def main():
                 sharedData.put(["piece", piece])
                 sharedData.put(["arm", arm_position])
                 lock.release()
+
+            rawCapture.truncate(0)
             
             key = cv2.waitKey(1) & 0xFF
 
             if key == ord('q'):
-                capture.release()
                 cv2.destroyAllWindows()
                 close_program = True
                 break

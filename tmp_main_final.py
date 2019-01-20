@@ -5,7 +5,6 @@ import cv2
 import os
 import logging
 import time
-
 ########### Own Classes ################
 import TCP_IP, UART     # Com services resides here
 from BoardDetectorClass import BoardDetector
@@ -70,14 +69,15 @@ def main():
         logger.info('Process started !')
         proc = mp.Process(target=com[1].start, name='Communication', args=(sharedData, lock, com_param))
     elif choice == '2':
-        print("You have chosen UART protocol as the main communication interface!")
+        print("You have chosen I2C protocol as the main communication interface!")
         proc = mp.Process(target=com[0].start, name='Communication', args=(sharedData, lock))
     proc.start()
     
 #################################################### Board detection ############################################
-    
-   
     ## Image processing parameter    
+    capture = cv2.VideoCapture(0)  # Opening the webcam
+    
+
     arm_start_delay = 20 # Delay time in seconds. This specifies the delay time between arm feedback start with reference to the program launch time
     frate_limit = 10    # Frame update rate limit
     count = 0
@@ -93,17 +93,12 @@ def main():
     # Start timer
     start_time = int(round(time.time() * 1000 )) # Get starting time in milliseconds
             
-
-    # Open camera
-    capture = cv2.VideoCapture(0)
-
     #this will have the number of squares on the image
     while True:
         #read frame from camera
-        cam_found, frame = capture.read()
-
+        bframe, frame = capture.read()
         #try catch block to avoid errors
-        if cam_found:  # bframe stands for boolean frame => frame status
+        if bframe:  # bframe stands for boolean frame => frame status
             count += 1
             # Apply frame rate limiter 
             if (count % frate_limit) == 0:
@@ -112,7 +107,7 @@ def main():
                 # Initially, let's pass the frame to  see if the board is present or not
                 status, board = boardDetectorObj.board_detector(frame=frame)
 
-                print("board detected: ", str(status))
+                #print(status)
 
                 if not status: # If the board is not detected, let's check if the arm is interrupting the view ! -
                     # Let's see the frame
@@ -120,9 +115,9 @@ def main():
                     
                     time_here = int(round( time.time() * 1000 ))
                     # Arm feedback starts 15 seconds after the starting of the whole program
-                    if (time_here - start_time) > (60 * 1000):
+                    #if (time_here - start_time) > (60 * 1000):
 
-                        arm_position, arm_frame = armDetectorObj.arm_detector(frame=frame)
+                    arm_position, arm_frame = armDetectorObj.arm_detector(frame=frame)
                     
                     #if arm_position:    # Yes. The arm is interrupting the view. Let's start the arm feedback mode
                         #print(arm_position)
@@ -131,12 +126,12 @@ def main():
                         #print('The board is not found')
 
                 else:
-                    
-                    imageCut = boardDetectorObj.imageSlices2(board)
-                    matrix = Classification.pieces_matrix(imageCut)
+                    #imageCut = boardDetectorObj.imageSlices2(board)
+                    #matrix = Classification.pieces_matrix(imageCut)
                     cv2.imshow('board', board)
                     cv2.imshow('frame', frame)
-            
+
+
                 pieces = np.zeros((8, 8, 3))
                 piece = [1, 2, 3]
                 
@@ -150,6 +145,8 @@ def main():
                 sharedData.put(["arm", arm_position])
                 lock.release()
             
+
+
             key = cv2.waitKey(1) & 0xFF
 
             if key == ord('q'):

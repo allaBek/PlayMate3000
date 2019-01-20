@@ -94,11 +94,13 @@ class ArmDetector:
             ###############################################################
             center = [sum(x) for x in zip(*corners)]        # Compute the center of the features 
             center = (center[0]/4, center[1]/4)
+            # Casting the value of the center to int (required for cv.circle)
+            center = tuple(map(int, center))
             # Draw the center of the features
-            cv.circle(vis,center, 10, (0,0,255), -1)
+            #cv.circle(vis,center, 10, (0,0,255), -1)
             #print(center)
             ##############################################################
-            cv.polylines(vis, [corners], True, (255, 255, 255))
+            #cv.polylines(vis, [corners], True, (255, 255, 255))
 
         if status is None:
             status = np.ones(len(kp_pairs), np.bool_)

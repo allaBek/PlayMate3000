@@ -1,6 +1,1 @@
-INFO:root:Lock acquired ! 
-INFO:root:Process started !
-INFO:root:Lock acquired ! 
-INFO:root:Process started !
-INFO:root:Lock acquired ! 
-INFO:root:Waiting for data ...
+INFO 2019-01-20 22:57:50,976 - Process started !

@@ -5,6 +5,28 @@ import logging
 
 class BoardDetector:
 
+    def imageSlices2(self,image, height=400, width=400, r=8,c=8):
+        # This function cuts down the image in small images
+        # starting from x,y=0,0
+        x = 0
+        y = 0
+        # w is the width which by we cut each small picture
+        w=int(height/8)
+        # h is the height which by we cut each small picture
+        h=int(width/8)
+        # we shall store all the output small images into the matrix
+        #  small_images:
+        stored_images = []
+        # looping and cutting:
+        for i in range(r):
+            for j in range(c):
+                cropped_image = image[y:y + h, x:x + w]
+                stored_images.append(cropped_image)
+                x = x + w 
+            x = 0
+            y = y + h 
+        return stored_images
+
     def reArrange(self, matrix, r, c):
         ### initialize the matrix where the sorted values will be
         # r for rows, and c for columns of matrix,
@@ -31,7 +53,7 @@ class BoardDetector:
         corners[0][1] = 2 * mapped[0][0][1] - mapped[1][0][1]
 
         corners[1][0] = 2 * mapped[0][c - 1][0] - mapped[0][c - 2][0]
-        corners[1][1] = 2 * mapped[0][c - 1][1] - mapped[1][c - 1][1]
+        corners[1][1] = 2 * mapped[0][c - 1][1] - mapped[1][c - 2][1]
 
         corners[2][0] = 2 * mapped[r - 1][0][0] - mapped[r - 1][1][0]
         corners[2][1] = 2 * mapped[r - 1][0][1] - mapped[r - 2][1][1]
@@ -43,6 +65,7 @@ class BoardDetector:
 
     def board_detector(self, frame):
 
+        colored_frame = frame
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         patternfound,corners = cv2.findChessboardCorners(frame, (7, 7),
@@ -59,12 +82,15 @@ class BoardDetector:
 
             cv2.cornerSubPix(frame, corners, (11, 11), (-1, -1),
                              (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 30, 0.1))
-            cv2.drawChessboardCorners(frame, (7, 7), corners, patternfound)
+
+            #cv2.drawChessboardCorners(colored_frame, (7, 7), corners, patternfound)
+            
             sorted = self.reArrange(map_matrix, 7, 7)
             
             cornersbound = self.getCorners(sorted)
             
             pts2 = np.float32([[0, 0], [400, 0], [0, 400], [400, 400]])
+            
             pts1 = np.float32([[cornersbound[0][0], cornersbound[0][1]], [cornersbound[1][0], cornersbound[1][1]],
                               [cornersbound[2][0], cornersbound[2][1]], [cornersbound[3][0], cornersbound[3][1]]])
 
@@ -72,7 +98,7 @@ class BoardDetector:
 
 
 
-            board = cv2.warpPerspective(frame, matrix, (400, 400))
+            board = cv2.warpPerspective(colored_frame, matrix, (400, 400))
             #cv2.imshow('only the board', board)
 
             #cv2.imshow('frame', frame)

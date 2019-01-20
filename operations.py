@@ -87,10 +87,10 @@ class operations():
         x2y2=x3y3
         x3y3=temp
         if abs(x1y1[1]-x3y3[1])<5 or abs(x2y2[1]-x4y4[1])<5 or abs(x2y2[0]-x3y3[0])<30 or abs(x1y1[1]-x2y2[1])<50:
-            x1y1=mapped[0][0]
-            x2y2=mapped[0][c-1]
-            x3y3=mapped[r-1][0]
-            x4y4=mapped[r-1][c-1]
+                x1y1=mapped[0][0]
+                x2y2=mapped[0][c-1]
+                x3y3=mapped[r-1][0]
+                x4y4=mapped[r-1][c-1]
         else:
             pass
         # print(x1y1,x2y2,x3y3,x4y4)
